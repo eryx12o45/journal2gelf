@@ -16,5 +16,5 @@ setup(
         'console_scripts': [
             'journal2gelf = journal2gelf:main',
         ],
-    }, install_requires=['systemd']
+    }
 )
