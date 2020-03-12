@@ -4,11 +4,11 @@ from setuptools import setup, find_packages
 
 setup(
     name='journal2gelf',
-    version='2.0.0',
-    description='Export structured log records from a systemd journal and send them to a graylog server.',
-    url='https://github.com/nailgun/journal2gelf',
-    author='Nailgun',
-    author_email='dbashkatov@gmail.com',
+    version='2.0.2',
+    description='Export structured log records from a systemd journal and send them to a Graylog server.',
+    url='https://github.com/eryx12o45/journal2gelf',
+    author='Eryx',
+    author_email='eryx@gmx.net',
     license='MIT',
     packages=find_packages(),
 
@@ -16,5 +16,5 @@ setup(
         'console_scripts': [
             'journal2gelf = journal2gelf:main',
         ],
-    },
+    }, install_requires=['systemd']
 )
