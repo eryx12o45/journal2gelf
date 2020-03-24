@@ -38,7 +38,7 @@ class UdpClient(object):
         count = 0
         message_id = hash(str(datetime.now().microsecond) + self.source)
         for i in range(0, len(data), chunk_size):
-            header = struct.pack('!ccqBB', '\x1e', '\x0f', message_id, count, total_chunks)
+            header = struct.pack('!ccqBB', '^^'.encode('utf-8'), '^O'.encode('utf-8'), message_id, count, total_chunks)
             count += 1
             yield header + data[i:i+chunk_size]
 
