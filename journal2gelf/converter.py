@@ -74,14 +74,14 @@ def convert_record(src, excludes=None, lower=True):
     if excludes is None:
         excludes = set()
     for k, v in list(src.items()):
-        conv = field_converters.get(k)
-        if conv:
+        try:
+            src[k] = v.decode()
+        except (UnicodeDecodeError, AttributeError):
+            pass
+        converter = field_converters.get(k)
+        if converter:
             try:
-                src[k] = conv(v)
-                try:
-                    src[k] = v.decode()
-                except (UnicodeDecodeError, AttributeError):
-                    pass
+                src[k] = converter(v)
             except ValueError:
                 pass
 
