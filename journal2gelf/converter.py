@@ -6,7 +6,7 @@ import json
 import logging
 
 from . import gelfclient
-from .reader import Reader
+from systemd import journal
 
 log = logging.getLogger(__name__)
 default_exclude_fields = frozenset([
@@ -38,7 +38,7 @@ class Converter(object):
         self.cursor = None
 
     def run(self, merge=False, cursor=None):
-        j = Reader()
+        j = journal.Reader()
 
         try:
             next(j)
