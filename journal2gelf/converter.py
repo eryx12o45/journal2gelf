@@ -61,7 +61,9 @@ class Converter(object):
 
         for record in j:
             self.cursor = record['__CURSOR']
-            record = convert_record(record, excludes=self.exclude_fields, lower=self.lower)
+            record = self.convert_record(
+                record, excludes=self.exclude_fields, lower=self.lower,
+                no_dup_underscore=self.no_dup_underscore, message_json=self.message_json)
             if self.send:
                 self.gelf.log(**record)
             if self.debug:
@@ -70,7 +72,7 @@ class Converter(object):
 
 # See https://www.graylog.org/resources/gelf-2/#specs
 # And http://www.freedesktop.org/software/systemd/man/systemd.journal-fields.html
-def convert_record(src, excludes=None, lower=True):
+def convert_record(src, excludes=None, lower=True, no_dup_underscore=False, message_json=False):
     if excludes is None:
         excludes = set()
     for k, v in list(src.items()):
@@ -85,10 +87,16 @@ def convert_record(src, excludes=None, lower=True):
             except ValueError:
                 pass
 
+    if message_json and src.get('MESSAGE', b'').startswith(b'{"'):
+        try:
+            src.update({'_' + k: v for k, v in json.loads(src['MESSAGE']).items()})
+        except ValueError:  # json.JSONDecodeError inherits ValueError
+            pass
+
     dst = {
         'version': '1.1',
         'host': src.pop('_HOSTNAME', None),
-        'short_message': src.pop('MESSAGE', None),
+        'short_message': src.pop('MESSAGE', b''),
         'timestamp': src.pop('__REALTIME_TIMESTAMP', None),
         'level': src.pop('PRIORITY', None),
         '_facility': src.get('SYSLOG_IDENTIFIER') or src.get('_COMM')
@@ -101,6 +109,8 @@ def convert_record(src, excludes=None, lower=True):
             k = k.lower()
         if k in system_fields:
             k = '_' + k
+        if not no_dup_underscore or k[0] != '_':
+            dst['_' + k] = v
         dst['_' + k] = v
 
     return dst
